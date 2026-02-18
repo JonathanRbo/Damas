@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Damas Brasileiras</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♟</text></svg>">
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js" defer></script>
+</head>
+<body>
+
+  <!-- ==================== TELA DE MENU ==================== -->
+  <div id="menu-screen" class="screen active">
+    <div class="menu-container">
+      <div class="logo">
+        <div class="logo-board">
+          <div class="mini-piece dark"></div>
+          <div class="mini-piece light"></div>
+        </div>
+        <h1>DAMAS</h1>
+        <p class="subtitle">Brasileiras</p>
+      </div>
+
+      <div class="menu-buttons">
+        <button class="btn btn-primary" onclick="showSubmenu('ai')">
+          <span class="btn-icon">🤖</span>
+          Jogar vs Computador
+        </button>
+        <button class="btn btn-secondary" onclick="startGame('local')">
+          <span class="btn-icon">👥</span>
+          Jogar Local (2 Jogadores)
+        </button>
+        <button class="btn btn-online" onclick="showSubmenu('online')">
+          <span class="btn-icon">🌐</span>
+          Jogar Online
+        </button>
+      </div>
+
+      <!-- Submenu: Dificuldade da IA -->
+      <div id="ai-submenu" class="submenu hidden">
+        <h3>Escolha a dificuldade</h3>
+        <div class="difficulty-buttons">
+          <button class="btn btn-small btn-easy" onclick="startGame('ai', 'easy')">Fácil</button>
+          <button class="btn btn-small btn-medium" onclick="startGame('ai', 'medium')">Médio</button>
+          <button class="btn btn-small btn-hard" onclick="startGame('ai', 'hard')">Difícil</button>
+        </div>
+        <button class="btn-back" onclick="hideSubmenus()">← Voltar</button>
+      </div>
+
+      <!-- Submenu: Online -->
+      <div id="online-submenu" class="submenu hidden">
+        <h3>Jogar Online</h3>
+        <div class="online-options">
+          <button class="btn btn-small btn-create" onclick="createOnlineRoom()">
+            Criar Sala
+          </button>
+          <div class="join-room">
+            <input type="text" id="room-code-input" placeholder="Código da sala" maxlength="16" autocomplete="off">
+            <button class="btn btn-small btn-join" onclick="joinOnlineRoom()">Entrar</button>
+          </div>
+        </div>
+        <div id="room-info" class="room-info hidden">
+          <p>Sua sala foi criada! Compartilhe o código:</p>
+          <div class="room-code-display">
+            <span id="room-code-display"></span>
+            <button class="btn-copy" onclick="copyRoomCode()" title="Copiar código">📋</button>
+          </div>
+          <p class="waiting">Aguardando oponente...</p>
+          <div class="loading-dots"><span></span><span></span><span></span></div>
+        </div>
+        <div id="online-status" class="online-status"></div>
+        <button class="btn-back" onclick="hideSubmenus(); cancelOnline()">← Voltar</button>
+      </div>
+
+      <footer class="menu-footer">
+        <p>Regras Brasileiras • Damas Voadoras • Captura Máxima Obrigatória</p>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ==================== TELA DO JOGO ==================== -->
+  <div id="game-screen" class="screen">
+    <div class="game-layout">
+
+      <!-- Info do Jogador 2 (Topo) -->
+      <div class="player-info player-top" id="player2-info">
+        <div class="player-pieces">
+          <div class="piece-indicator light-piece"></div>
+          <span class="player-name" id="player2-name">Jogador 2</span>
+        </div>
+        <div class="player-stats">
+          <span class="pieces-count">Peças: <strong id="player2-pieces">12</strong></span>
+          <span class="captures-count">Capturas: <strong id="player2-captures">0</strong></span>
+        </div>
+        <div class="turn-indicator" id="player2-turn"></div>
+      </div>
+
+      <!-- Tabuleiro -->
+      <div class="board-wrapper">
+        <div class="board-frame">
+          <div class="board-labels board-labels-top">
+            <span>A</span><span>B</span><span>C</span><span>D</span>
+            <span>E</span><span>F</span><span>G</span><span>H</span>
+          </div>
+          <div class="board-with-numbers">
+            <div class="board-labels board-labels-left">
+              <span>8</span><span>7</span><span>6</span><span>5</span>
+              <span>4</span><span>3</span><span>2</span><span>1</span>
+            </div>
+            <div id="board" class="board"></div>
+            <div class="board-labels board-labels-right">
+              <span>8</span><span>7</span><span>6</span><span>5</span>
+              <span>4</span><span>3</span><span>2</span><span>1</span>
+            </div>
+          </div>
+          <div class="board-labels board-labels-bottom">
+            <span>A</span><span>B</span><span>C</span><span>D</span>
+            <span>E</span><span>F</span><span>G</span><span>H</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info do Jogador 1 (Baixo) -->
+      <div class="player-info player-bottom" id="player1-info">
+        <div class="player-pieces">
+          <div class="piece-indicator dark-piece"></div>
+          <span class="player-name" id="player1-name">Jogador 1</span>
+        </div>
+        <div class="player-stats">
+          <span class="pieces-count">Peças: <strong id="player1-pieces">12</strong></span>
+          <span class="captures-count">Capturas: <strong id="player1-captures">0</strong></span>
+        </div>
+        <div class="turn-indicator" id="player1-turn"></div>
+      </div>
+
+      <!-- Controles -->
+      <div class="game-controls">
+        <button class="btn btn-control" onclick="restartGame()">🔄 Reiniciar</button>
+        <button class="btn btn-control" onclick="backToMenu()">🏠 Menu</button>
+      </div>
+    </div>
+
+    <!-- Modal de fim de jogo -->
+    <div id="game-over-modal" class="modal hidden">
+      <div class="modal-content">
+        <h2 id="game-over-title">Fim de Jogo!</h2>
+        <p id="game-over-message"></p>
+        <div class="modal-buttons">
+          <button class="btn btn-primary" onclick="restartGame()">Jogar Novamente</button>
+          <button class="btn btn-secondary" onclick="backToMenu()">Menu Principal</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast de notificação -->
+    <div id="toast" class="toast hidden"></div>
+  </div>
+
+  <script src="js/game.js"></script>
+</body>
+</html>
