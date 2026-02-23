@@ -1,6 +1,6 @@
-# ♟ Damas Brasileiras
+# ♟ Damas
 
-Jogo de Damas Brasileiras completo, jogável no navegador — com IA, multiplayer local e online P2P.
+Jogo de Damas completo, jogável no navegador — com IA, multiplayer local e online P2P.
 
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat&logo=css3&logoColor=white)
